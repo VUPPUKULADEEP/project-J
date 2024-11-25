@@ -49,12 +49,12 @@ def textspeech(x,language_code="it-US"):
 def open_web(text):
     if "google" in text.lower():
         textspeech('opening google')
-        web.open_new('https://www.google.com/')
+        web.open_new_tab('https://www.google.com/')
 
 # Record and transcribe
 audio_data = record_audio()
 save_audio_as_wav(audio_data) #   Save the recording to a file
 text = transcribe_audio()
-textspeech(text)  # Transcribe the recorded audio file
+# textspeech(text)  # Transcribe the recorded audio file
 open_web(text)
 print("Transcription:", text)
