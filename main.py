@@ -4,6 +4,7 @@ import scipy.io.wavfile as wav
 import subprocess
 from faster_whisper import WhisperModel
 import webbrowser as web
+import pyjokes 
 
 # Initialize the Whisper model
 model = WhisperModel("tiny.en", device="cpu")  # Change "small" to another model if needed
@@ -37,7 +38,7 @@ def transcribe_audio(filename="recording.wav", language="en"):
         transcription += segment.text + " "
     return transcription
 
-def textspeech(x,language_code="it-US"):
+def textspeech(x,language_code="en-US"):
     # Directly use pico2wave through subprocess
     temp_wav = "audio/temp_speech.wav"  # Temporary file to store speech
     command = f'pico2wave -w {temp_wav} "{x}"'  # Generate speech with pico2wave
@@ -50,6 +51,13 @@ def open_web(text):
     if "google" in text.lower():
         textspeech('opening google')
         web.open_new_tab('https://www.google.com/')
+    elif "joke" in text.lower():
+         a = joke()
+         textspeech(a)
+         print("Joke:", a) 
+
+def joke():
+    return pyjokes.get_joke("en","all"); 
 
 # Record and transcribe
 audio_data = record_audio()
@@ -58,3 +66,4 @@ text = transcribe_audio()
 # textspeech(text)  # Transcribe the recorded audio file
 open_web(text)
 print("Transcription:", text)
+# print("Joke:", joke())  # Print the Joke
