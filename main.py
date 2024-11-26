@@ -43,18 +43,21 @@ def textspeech(x,language_code="en-US"):
     temp_wav = "audio/temp_speech.wav"  # Temporary file to store speech
     command = f'pico2wave -w {temp_wav} "{x}"'  # Generate speech with pico2wave
     # Run pico2wave command to generate speech
-    subprocess.run(command, shell=True)
+    subprocess.run(command, shell=True , check=True)
     # Play the generated speech using 'aplay'
     subprocess.run(f'aplay {temp_wav}', shell=True)
 
 def open_web(text):
-    if "google" in text.lower():
+    if "search" in text.lower():
+        web.open("https://www.google.com/search?q=" + text)   
+    elif "google" in text.lower():
         textspeech('opening google')
         web.open_new_tab('https://www.google.com/')
     elif "joke" in text.lower():
          a = joke()
          textspeech(a)
          print("Joke:", a) 
+
 
 def joke():
     return pyjokes.get_joke("en","all"); 
@@ -67,3 +70,4 @@ text = transcribe_audio()
 open_web(text)
 print("Transcription:", text)
 # print("Joke:", joke())  # Print the Joke
+
