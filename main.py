@@ -8,6 +8,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import time
 import requests
+import randfacts
 
 r = sr.Recognizer()
 para = ''
@@ -56,7 +57,8 @@ def youTube(text):
     time .sleep(120)
 
 
-
+def random_facts():
+    return randfacts.get_fact()
 
 
 def record_audio():   
@@ -96,17 +98,20 @@ def open_web(text):
         news()
     elif "welcome back daddy's home" in lower_text:
         textspeech('welocome back sir all set')
+    elif "fact" or "facts" in lower_text:
+        x = random_facts()
+        print(x)
+        textspeech('did you know that  '+  x)
 
 def joke():
     return pyjokes.get_joke("en","all"); 
 
-
 def news():
     apiadress = "https://newsapi.org/v2/everything?q=keyword&apiKey=c2854530a2a44f21a107acddf62832e9"
     json_data = requests.get(apiadress).json()
-    for i in range(3):
-        data = json_data['articles'][i]['title']
-        print(json_data['articles'][i]['title'])
+    for i in range(1,4):
+        data = f'Number{i} {json_data['articles'][i]['title']}'
+        print({data})
         textspeech(data)
 
 
