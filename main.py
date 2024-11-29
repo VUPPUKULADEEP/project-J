@@ -123,12 +123,12 @@ def open_web(text):
         textspeech('did you know that  '+  x)
         return
     elif 'date' in lower_text:
-        data = now.date()
-        textspeech(data)
-        print(data)
+        formatted_date = now.strftime('%B %d, %Y')
+        print(formatted_date)
+        textspeech(formatted_date)
         return
     elif 'time' in lower_text:
-        tim =now.strftime('%H:%M:%S')
+        tim =now.strftime('%I:%M%p')
         print(tim)
         textspeech(tim)
         return
