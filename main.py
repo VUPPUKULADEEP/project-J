@@ -46,17 +46,15 @@ def wikipedia(text):
         driver.quit()
 
 def youTube(text):
+    input = text.replace("play", "").replace("youtube", "").strip()
     driver = webdriver.Chrome()
     # Open YouTube, search for a video, and play the first result
-    driver.get("https://www.youtube.com/results?search_query="+ text)
+    driver.get("https://www.youtube.com/results?search_query="+ input)
     video = driver.find_element(By.ID,'title-wrapper')
     video.click()
-    time .sleep(10)
-    skip = driver.find_element(By.CLASS_NAME,'ytp-skip-ad-button__icon') or False
-    if skip :
-        skip.click()
-    time.sleep(100)
-youTube("beat it")
+    time .sleep(120)
+
+
 
 
 
@@ -66,7 +64,7 @@ def record_audio():
         r.adjust_for_ambient_noise(source,1.2)
         print('Recording audio...')
         print("Please speak something:")
-        audio = r.listen(source, timeout=4, phrase_time_limit=10)
+        audio = r.listen(source, timeout=4, phrase_time_limit=12)
         try:
             text = r.recognize_google(audio)
             print("You said: " + text)
@@ -91,17 +89,18 @@ def open_web(text):
          a_joke = joke()
          print("Joke:", a_joke) 
          textspeech(a_joke)
-
+    elif "play" in lower_text:
+         youTube(text)
 
 def joke():
     return pyjokes.get_joke("en","all"); 
 
 
-# textspeech('hello sir iam your voice assistant')
+textspeech('hello sir iam your voice assistant')
 
-# while True:
-#     text = record_audio()
-#     textspeech(text)
-#     open_web(text)
-#     print("Transcription:", text)
+while True:
+    text = record_audio()
+    textspeech(text)
+    open_web(text)
+    print("Transcription:", text)
 
