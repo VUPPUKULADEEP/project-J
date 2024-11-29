@@ -120,6 +120,17 @@ def news():
         textspeech(data)
 
 
+def temp():
+    url = 'http://api.weatherapi.com/v1/current.json?key=ece7dca8c7904b3e8e0131221242911&q=Srikakulam&aqi=no'
+    json_data = requests.get(url).json()
+    print(json_data)
+    print(json_data['current']['wind_mph'])
+    print(json_data['current']['temp_c'])
+    print(json_data['current']['humidity'])
+    print(json_data['current']['condition']['text'])
+
+    textspeech(f'At Srikakulam,  wind speed is  {json_data['current']['wind_mph']} meters per hour, temperature is {json_data['current']['temp_c']}, humidity is {json_data['current']['humidity']} and present condition {json_data['current']['condition']['text']}')
+
 
 textspeech('hello sir iam your voice assistant')
 
@@ -129,4 +140,6 @@ while True:
     textspeech(text)
     open_web(text)
     print("Transcription:", text)
+
+temp()
 
