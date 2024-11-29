@@ -9,8 +9,10 @@ from selenium.webdriver.common.keys import Keys
 import time
 import requests
 import randfacts
+from datetime import datetime
 
 r = sr.Recognizer()
+now= datetime.now()
 para = ''
 
 
@@ -77,7 +79,6 @@ def record_audio():
             return text
         except sr.UnknownValueError:
             print("Google Speech Recognition could not understand audio")
-            #textspeech('i didnt understand')
             return 'speak again'
         except sr.RequestError as e:
             print(f"Could not request results from Google Speech Recognition service; {e}")
@@ -112,16 +113,24 @@ def open_web(text):
     elif "news" in lower_text:
         news()
         return
-    elif "welcome back daddy's home" in lower_text:
-        textspeech('welocome back sir all set')
-        return
-    elif 'whether' or 'temperature' in lower_text:
+    elif 'whether' in lower_text or 'temperature' in lower_text:
+
         temp()
         return
-    elif "fact" or "facts" in lower_text:
+    elif "fact" in lower_text or "facts" in lower_text:
         x = random_facts()
         print(x)
         textspeech('did you know that  '+  x)
+        return
+    elif 'date' in lower_text:
+        data = now.date()
+        textspeech(data)
+        print(data)
+        return
+    elif 'time' in lower_text:
+        tim =now.strftime('%H:%M:%S')
+        print(tim)
+        textspeech(tim)
         return
     else:
         return
@@ -161,8 +170,10 @@ while True:
     if 'exit' in text:
         break
     textspeech(text)
-    open_web(text)
+    if not text is 'speak again':
+        open_web(text)
     print("Transcription:", text)
+
 
 
 
