@@ -1,42 +1,29 @@
 import sounddevice as sd
-import numpy as np
-import scipy.io.wavfile as wav
 import subprocess
-from faster_whisper import WhisperModel
 import webbrowser as web
 import pyjokes 
+import speech_recognition as sr
 
-# Initialize the Whisper model
-model = WhisperModel("tiny.en", device="cpu")  # Change "small" to another model if needed
+r = sr.Recognizer()
 
-# Audio recording settings
-sample_rate = 16000  # Whisper models work well with 16kHz audio
-duration = 5  # Duration of recording in seconds
+def record_audio():   
+    with sr.Microphone() as source:
+        r.energy_threshold = 10000
+        r.adjust_for_ambient_noise(source,1.2)
+        print('Recording audio...')
+        print("Please speak something:")
+        audio = r.listen(source, timeout=4, phrase_time_limit=10)
+        try:
+            text = r.recognize_google(audio)
+            print("You said: " + text)
+            return text
+        except sr.UnknownValueError:
+            print("Google Speech Recognition could not understand audio")
+            #textspeech('i didnt understand')
+            return 'speak again'
+        except sr.RequestError as e:
+            print(f"Could not request results from Google Speech Recognition service; {e}")
 
-def record_audio():
-    print("Recording audio...")
-    audio = sd.rec(int(sample_rate * duration), samplerate=sample_rate, channels=1, dtype='float32')
-    sd.wait()  # Wait until recording is finished
-    audio = np.squeeze(audio)  # Remove single-dimensional entries from the array
-    sd.stop()
-    # print(audio)
-    return audio
-
-def save_audio_as_wav(audio, filename="recording.wav"):
-    # Convert float32 audio data to int16 for WAV file compatibility
-    scaled_audio = np.int16(audio * 32767)
-    # print(scaled_audio)
-    wav.write(filename, sample_rate, scaled_audio)
-
-def transcribe_audio(filename="recording.wav", language="en"):
-    segments, info = model.transcribe(filename)
-    # print(f"Detected language: {info.language} with probability {info.language_probability:.2f}")
-    
-    # Print each segment
-    transcription = ""
-    for segment in segments:
-        transcription += segment.text + " "
-    return transcription
 
 def textspeech(x,language_code="en-US"):
     # Directly use pico2wave through subprocess
@@ -48,26 +35,28 @@ def textspeech(x,language_code="en-US"):
     subprocess.run(f'aplay {temp_wav}', shell=True)
 
 def open_web(text):
-    if "search" in text.lower():
+    lower_text = text.lower()
+    print(f"Transcription received: '{text}'")
+    if "browse" in lower_text:
         web.open("https://www.google.com/search?q=" + text)   
-    elif "google" in text.lower():
+    elif "google" in lower_text:
         textspeech('opening google')
         web.open_new_tab('https://www.google.com/')
-    elif "joke" in text.lower():
-         a = joke()
-         textspeech(a)
-         print("Joke:", a) 
+    elif "joke" in lower_text and not "don't" in lower_text:
+         a_joke = joke()
+         print("Joke:", a_joke) 
+         textspeech(a_joke)
 
 
 def joke():
     return pyjokes.get_joke("en","all"); 
 
-# Record and transcribe
-audio_data = record_audio()
-save_audio_as_wav(audio_data) #   Save the recording to a file
-text = transcribe_audio()
-# textspeech(text)  # Transcribe the recorded audio file
-open_web(text)
-print("Transcription:", text)
-# print("Joke:", joke())  # Print the Joke
 
+textspeech('hello sir iam your voice assistant')
+
+while True:
+    text = record_audio()
+    open_web(text)
+    print("Transcription:", text)
+
+# usr/bin/google-chrome-stable
