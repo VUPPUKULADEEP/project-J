@@ -1,10 +1,47 @@
-import sounddevice as sd
+
 import subprocess
 import webbrowser as web
 import pyjokes 
 import speech_recognition as sr
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+import time
 
 r = sr.Recognizer()
+
+def textspeech(x,language_code="en-US"):
+    # Directly use pico2wave through subprocess
+    temp_wav = "audio/temp_speech.wav"  # Temporary file to store speech
+    command = f'pico2wave -w {temp_wav} "{x}"'  # Generate speech with pico2wave
+    # Run pico2wave command to generate speech
+    subprocess.run(command, shell=True , check=True)
+    # Play the generated speech using 'aplay'
+    subprocess.run(f'aplay {temp_wav}', shell=True)
+
+def wikipedia(input):
+    # Initialize the WebDriver (Chrome in this case)
+    driver = webdriver.Chrome()
+
+    try:
+        # Open Wikipedia
+        driver.get("https://www.wikipedia.org")
+        
+        # Find the search input box
+        search_box = driver.find_element(By.ID,'searchInput')
+        search_button=driver.find_element(By.TAG_NAME,'button')
+        search_box.send_keys(input)
+        search_button.click()
+        para = driver.find_element(By.XPATH,'//*[@id="mw-content-text"]/div[1]/p[2]').text
+        print(para)
+        
+        time.sleep(5)
+        textspeech(para)
+    finally:
+        # Close the browser
+        driver.quit()
+
+
 
 def record_audio():   
     with sr.Microphone() as source:
@@ -25,15 +62,6 @@ def record_audio():
             print(f"Could not request results from Google Speech Recognition service; {e}")
 
 
-def textspeech(x,language_code="en-US"):
-    # Directly use pico2wave through subprocess
-    temp_wav = "audio/temp_speech.wav"  # Temporary file to store speech
-    command = f'pico2wave -w {temp_wav} "{x}"'  # Generate speech with pico2wave
-    # Run pico2wave command to generate speech
-    subprocess.run(command, shell=True , check=True)
-    # Play the generated speech using 'aplay'
-    subprocess.run(f'aplay {temp_wav}', shell=True)
-
 def open_web(text):
     lower_text = text.lower()
     print(f"Transcription received: '{text}'")
@@ -52,11 +80,12 @@ def joke():
     return pyjokes.get_joke("en","all"); 
 
 
-textspeech('hello sir iam your voice assistant')
+# textspeech('hello sir iam your voice assistant')
 
-while True:
-    text = record_audio()
-    open_web(text)
-    print("Transcription:", text)
+# while True:
+#     text = record_audio()
+#     textspeech(text)
+#     open_web(text)
+#     print("Transcription:", text)
 
-# usr/bin/google-chrome-stable
+wikipedia('dhoni')
