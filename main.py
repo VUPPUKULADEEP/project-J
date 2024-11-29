@@ -1,4 +1,4 @@
-
+import re
 import subprocess
 import webbrowser as web
 import pyjokes 
@@ -9,6 +9,7 @@ from selenium.webdriver.common.keys import Keys
 import time
 
 r = sr.Recognizer()
+para = ''
 
 def textspeech(x,language_code="en-US"):
     # Directly use pico2wave through subprocess
@@ -19,24 +20,27 @@ def textspeech(x,language_code="en-US"):
     # Play the generated speech using 'aplay'
     subprocess.run(f'aplay {temp_wav}', shell=True)
 
-def wikipedia(input):
+def wikipedia(text):
+    global para
+    input = text.replace("browse", "").replace("about", "").strip()
     # Initialize the WebDriver (Chrome in this case)
     driver = webdriver.Chrome()
-
     try:
         # Open Wikipedia
         driver.get("https://www.wikipedia.org")
-        
         # Find the search input box
         search_box = driver.find_element(By.ID,'searchInput')
         search_button=driver.find_element(By.TAG_NAME,'button')
         search_box.send_keys(input)
         search_button.click()
-        para = driver.find_element(By.XPATH,'//*[@id="mw-content-text"]/div[1]/p[2]').text
-        print(para)
-        
+        para = driver.find_element(By.XPATH,'//*[@id="mw-content-text"]/div[1]/p[2]').text 
+        cleaned_text=re.sub(r'[^a-zA-Z0-9\s]', '', para)
+        print(cleaned_text)
         time.sleep(5)
-        textspeech(para)
+        textspeech(cleaned_text)
+    except Exception as e:
+        print(Exception)
+        textspeech('not found')
     finally:
         # Close the browser
         driver.quit()
@@ -66,7 +70,7 @@ def open_web(text):
     lower_text = text.lower()
     print(f"Transcription received: '{text}'")
     if "browse" in lower_text:
-        web.open("https://www.google.com/search?q=" + text)   
+        wikipedia(text)  
     elif "google" in lower_text:
         textspeech('opening google')
         web.open_new_tab('https://www.google.com/')
@@ -82,10 +86,10 @@ def joke():
 
 # textspeech('hello sir iam your voice assistant')
 
-# while True:
-#     text = record_audio()
-#     textspeech(text)
-#     open_web(text)
-#     print("Transcription:", text)
+while True:
+    text = record_audio()
+    textspeech(text)
+    open_web(text)
+    print("Transcription:", text)
 
-wikipedia('dhoni')
+# wikipedia('dhoni')
