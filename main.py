@@ -88,23 +88,44 @@ def open_web(text):
     print(f"Transcription received: '{text}'")
     if "browse" in lower_text:
         wikipedia(text)  
+        return
     elif "google" in lower_text:
         textspeech('opening google')
         web.open_new_tab('https://www.google.com/')
+        time.sleep(3)
+        web.close()
+        return
+    elif "search" in lower_text:
+        text = text.replace('search', '')
+        web.open_new_tab(f'https://www.google.com/search?query={text}')
+        time.sleep(3)
+        web.close()
+        return
     elif "joke" in lower_text and not "don't" in lower_text:
          a_joke = joke()
          print("Joke:", a_joke) 
          textspeech(a_joke)
+         return
     elif "play" in lower_text:
          youTube(text)
+         return
     elif "news" in lower_text:
         news()
+        return
     elif "welcome back daddy's home" in lower_text:
         textspeech('welocome back sir all set')
+        return
+    elif 'whether' or 'temperature' in lower_text:
+        temp()
+        return
     elif "fact" or "facts" in lower_text:
         x = random_facts()
         print(x)
         textspeech('did you know that  '+  x)
+        return
+    else:
+        return
+ 
 
 
 def joke():
@@ -137,9 +158,11 @@ textspeech('hello sir iam your voice assistant')
 
 while True:
     text = record_audio()
+    if 'exit' in text:
+        break
     textspeech(text)
     open_web(text)
     print("Transcription:", text)
 
-temp()
+
 
