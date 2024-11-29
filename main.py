@@ -13,6 +13,7 @@ import randfacts
 r = sr.Recognizer()
 para = ''
 
+
 def textspeech(x,language_code="en-US"):
     # Directly use pico2wave through subprocess
     temp_wav = "audio/temp_speech.wav"  # Temporary file to store speech
@@ -21,6 +22,7 @@ def textspeech(x,language_code="en-US"):
     subprocess.run(command, shell=True , check=True)
     # Play the generated speech using 'aplay'
     subprocess.run(f'aplay {temp_wav}', shell=True)
+
 
 def wikipedia(text):
     global para
@@ -46,6 +48,7 @@ def wikipedia(text):
     finally:
         # Close the browser
         driver.quit()
+
 
 def youTube(text):
     input = text.replace("play", "").replace("youtube", "").strip()
@@ -103,8 +106,10 @@ def open_web(text):
         print(x)
         textspeech('did you know that  '+  x)
 
+
 def joke():
     return pyjokes.get_joke("en","all"); 
+
 
 def news():
     apiadress = "https://newsapi.org/v2/everything?q=keyword&apiKey=c2854530a2a44f21a107acddf62832e9"
@@ -117,6 +122,7 @@ def news():
 
 
 textspeech('hello sir iam your voice assistant')
+
 
 while True:
     text = record_audio()
