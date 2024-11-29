@@ -1,3 +1,4 @@
+import os
 import re
 import subprocess
 import webbrowser as web
@@ -83,6 +84,22 @@ def record_audio():
         except sr.RequestError as e:
             print(f"Could not request results from Google Speech Recognition service; {e}")
 
+def temperature(text):
+    driver = webdriver.Chrome()
+    text = text.replace('temperature','').replace('whether','').replace('of','').replace('at','').strip()
+    try:
+        # Open Wikipedia
+        driver.get(f"https://www.google.com/search?q={text}+whether")
+        # Find the search input box
+        search_box = driver.find_element(By.ID,'wob_tm').text
+        textspeech(f'temperature at s{text} is '+ search_box+ 'degree celsius')
+        time.sleep(5)
+    except Exception as e:
+        print(Exception)
+        textspeech('not found')
+    finally:
+        # Close the browser
+        driver.quit()
 
 def open_web(text):
     lower_text = text.lower()
@@ -93,14 +110,14 @@ def open_web(text):
     elif "google" in lower_text:
         textspeech('opening google')
         web.open_new_tab('https://www.google.com/')
-        time.sleep(3)
-        web.close()
+        time.sleep(10)
+        os.system('pkill chrome')
         return
     elif "search" in lower_text:
         text = text.replace('search', '')
         web.open_new_tab(f'https://www.google.com/search?query={text}')
-        time.sleep(3)
-        web.close()
+        time.sleep(10)
+        os.system('pkill chrome')
         return
     elif "joke" in lower_text and not "don't" in lower_text:
          a_joke = joke()
@@ -114,9 +131,8 @@ def open_web(text):
         news()
         return
     elif 'whether' in lower_text or 'temperature' in lower_text:
-
-        temp()
-        return
+        temperature(text)
+        os.system('pkill chrome')
     elif "fact" in lower_text or "facts" in lower_text:
         x = random_facts()
         print(x)
@@ -150,16 +166,16 @@ def news():
         textspeech(data)
 
 
-def temp():
-    url = 'http://api.weatherapi.com/v1/current.json?key=ece7dca8c7904b3e8e0131221242911&q=Srikakulam&aqi=no'
-    json_data = requests.get(url).json()
-    print(json_data)
-    print(json_data['current']['wind_mph'])
-    print(json_data['current']['temp_c'])
-    print(json_data['current']['humidity'])
-    print(json_data['current']['condition']['text'])
+# def temp():
+#     url = 'http://api.weatherapi.com/v1/current.json?key=ece7dca8c7904b3e8e0131221242911&q=Srikakulam&aqi=no'
+#     json_data = requests.get(url).json()
+#     print(json_data)
+#     print(json_data['current']['wind_mph'])
+#     print(json_data['current']['temp_c'])
+#     print(json_data['current']['humidity'])
+#     print(json_data['current']['condition']['text'])
 
-    textspeech(f'At Srikakulam,  wind speed is  {json_data['current']['wind_mph']} meters per hour, temperature is {json_data['current']['temp_c']}, humidity is {json_data['current']['humidity']} and present condition {json_data['current']['condition']['text']}')
+#     textspeech(f'At Srikakulam,  wind speed is  {json_data['current']['wind_mph']} meters per hour, temperature is {json_data['current']['temp_c']}, humidity is {json_data['current']['humidity']} and present condition {json_data['current']['condition']['text']}')
 
 
 textspeech('hello sir iam your voice assistant')
