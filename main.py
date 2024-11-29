@@ -45,6 +45,19 @@ def wikipedia(text):
         # Close the browser
         driver.quit()
 
+def youTube(text):
+    driver = webdriver.Chrome()
+    # Open YouTube, search for a video, and play the first result
+    driver.get("https://www.youtube.com/results?search_query="+ text)
+    video = driver.find_element(By.ID,'title-wrapper')
+    video.click()
+    time .sleep(10)
+    skip = driver.find_element(By.CLASS_NAME,'ytp-skip-ad-button__icon') or False
+    if skip :
+        skip.click()
+    time.sleep(100)
+youTube("beat it")
+
 
 
 def record_audio():   
@@ -86,10 +99,9 @@ def joke():
 
 # textspeech('hello sir iam your voice assistant')
 
-while True:
-    text = record_audio()
-    textspeech(text)
-    open_web(text)
-    print("Transcription:", text)
+# while True:
+#     text = record_audio()
+#     textspeech(text)
+#     open_web(text)
+#     print("Transcription:", text)
 
-# wikipedia('dhoni')
