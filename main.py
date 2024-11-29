@@ -7,6 +7,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import time
+import requests
 
 r = sr.Recognizer()
 para = ''
@@ -91,9 +92,23 @@ def open_web(text):
          textspeech(a_joke)
     elif "play" in lower_text:
          youTube(text)
+    elif "news" in lower_text:
+        news()
+    elif "welcome back daddy's home" in lower_text:
+        textspeech('welocome back sir all set')
 
 def joke():
     return pyjokes.get_joke("en","all"); 
+
+
+def news():
+    apiadress = "https://newsapi.org/v2/everything?q=keyword&apiKey=c2854530a2a44f21a107acddf62832e9"
+    json_data = requests.get(apiadress).json()
+    for i in range(3):
+        data = json_data['articles'][i]['title']
+        print(json_data['articles'][i]['title'])
+        textspeech(data)
+
 
 
 textspeech('hello sir iam your voice assistant')
