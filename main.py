@@ -14,22 +14,14 @@ import time
 import requests
 import randfacts
 from datetime import datetime
+import pyautogui
 
 r = sr.Recognizer()
 now= datetime.now()
 para = ''
 
 
-# def textspeech(x,language_code="en-US"):
-#     # Directly use pico2wave through subprocess
-#     temp_wav = "audio/temp_speech.wav"  # Temporary file to store speech
-#     command = f'pico2wave -w {temp_wav} "{x}"'  # Generate speech with pico2wave
-#     # Run pico2wave command to generate speech
-#     subprocess.run(command, shell=True , check=True)
-#     # Play the generated speech using 'aplay'
-#     subprocess.run(f'aplay {temp_wav}', shell=True)
 def textspeech(text):
-# Create TTS object and save to file
     tts = gTTS(text=text, lang='en-in', slow=False)
     tts.save("output.wav")
     subprocess.run(['mpv', '--speed=1.2', 'output.wav'])
@@ -99,6 +91,7 @@ def record_audio():
         except sr.RequestError as e:
             print(f"Could not request results from Google Speech Recognition service; {e}")
 
+
 def temperature(text):
     driver = webdriver.Chrome()
     text = text.replace('temperature','').replace('whether','').replace('of','').replace('at','').strip()
@@ -116,6 +109,15 @@ def temperature(text):
     finally:
         # Close the browser
         driver.quit()
+
+def take_screenshot():
+    """Capture and Save a Screenshot"""
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"screenshot_{timestamp}.png"
+    pyautogui.screenshot(filename)
+    textspeech(f"Screenshot saved as {filename}")
+    print(f"Screenshot saved as {filename}")
+
 
 def open_web(text):
     lower_text = text.lower()
@@ -166,6 +168,8 @@ def open_web(text):
         print(tim)
         textspeech(tim)
         return
+    elif "take" in lower_text and "picture" in lower_text:
+        take_screenshot()
     else:
         return
  
@@ -182,18 +186,6 @@ def news():
         data = f'Number{i} {json_data['articles'][i]['title']}'
         print({data})
         textspeech(data)
-
-
-# def temp():
-#     url = 'http://api.weatherapi.com/v1/current.json?key=ece7dca8c7904b3e8e0131221242911&q=Srikakulam&aqi=no'
-#     json_data = requests.get(url).json()
-#     print(json_data)
-#     print(json_data['current']['wind_mph'])
-#     print(json_data['current']['temp_c'])
-#     print(json_data['current']['humidity'])
-#     print(json_data['current']['condition']['text'])
-
-#     textspeech(f'At Srikakulam,  wind speed is  {json_data['current']['wind_mph']} meters per hour, temperature is {json_data['current']['temp_c']}, humidity is {json_data['current']['humidity']} and present condition {json_data['current']['condition']['text']}')
 
 
 textspeech('hello sir i am your voice assistant')

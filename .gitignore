@@ -4,3 +4,4 @@ audio
 test.py
 myenv
 *.mp3*
+*.png*
