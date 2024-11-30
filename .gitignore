@@ -5,3 +5,4 @@ test.py
 myenv
 *.mp3*
 *.png*
+*screenshots*

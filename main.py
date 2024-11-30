@@ -21,7 +21,7 @@ import keyboard
 r = sr.Recognizer()
 now= datetime.now()
 para = ''
-
+tele = False
 
 def textspeech(text):
     tts = gTTS(text=text, lang='en-in', slow=False)
@@ -134,6 +134,7 @@ def take_screenshot():
 
 
 def open_web(text):
+    global tele
     lower_text = text.lower()
     print(f"Transcription received: '{text}'")
     if "browse" in lower_text:
@@ -184,12 +185,16 @@ def open_web(text):
         return
     elif "take" in lower_text and "picture" in lower_text:
         take_screenshot()
-    elif 'close telegram' in lower_text:
+        return
+    elif 'close telegram' in lower_text and tele:
         textspeech('Closing Telegram...')
-         # Simulate pressing Alt + F4
-        keyboard.press_and_release('alt+f4')
+        pyautogui.hotkey('alt', 'f4')
+        tele = False
+        return
     elif 'telegram' in lower_text:
+        tele = True
         Telegram()
+        return
     else:
         return
  
@@ -218,7 +223,6 @@ while True:
     if text is not 'speak again':
         open_web(text)
     print("Transcription:", text)
-
 
 
 
