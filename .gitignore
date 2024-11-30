@@ -5,3 +5,4 @@ myenv
 *.mp3*
 *.png*
 *screenshots*
+__pycache__

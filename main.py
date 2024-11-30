@@ -15,8 +15,7 @@ import requests
 import randfacts
 from datetime import datetime
 import pyautogui
-import mouseinfo,shutil
-import keyboard
+import shutil
 
 r = sr.Recognizer()
 now= datetime.now()
@@ -66,19 +65,15 @@ def Telegram():
 
 
 def youTube(text):
-    input = text.replace("play", "").replace("youtube", "").strip()
-    driver = webdriver.Chrome()
-    # Open YouTube, search for a video, and play the first result
-    driver.get("https://www.youtube.com/results?search_query="+ input)
-    video = driver.find_elements(By.ID,'title-wrapper')
-    video[1].click()
     try:
+        input = text.replace("play", "").replace("youtube", "").strip()
+        driver = webdriver.Chrome()
+         # Open YouTube, search for a video, and play the first result
+        driver.get("https://www.youtube.com/results?search_query="+ input)
+        video = driver.find_elements(By.ID,'title-wrapper')
+        video[1].click()
+    
         # Wait for the "Skip Ads" button to be clickable
-        skip_button = WebDriverWait(driver, 12).until(
-            EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Skip Ads')]"))
-        )
-        skip_button.click()  # Click the skip button
-        print("Ad skipped!")
     except Exception as e:
         print("No ad to skip or an error occurred:", e)
     time .sleep(120)
@@ -89,6 +84,7 @@ def random_facts():
 
 
 def record_audio():   
+    print('hello')
     with sr.Microphone() as source:
         r.energy_threshold = 10000
         r.adjust_for_ambient_noise(source,1.2)
@@ -215,14 +211,15 @@ def news():
 
 textspeech('hello sir i am your voice assistant')
  
-
-while True:
-    text = record_audio()
-    if 'exit' in text:
-        break
-    if text is not 'speak again':
+def process_voice_commands():
+    textspeech('hi')
+    while True:
+        text = record_audio()
+        if 'exit' in text:
+            break
         open_web(text)
-    print("Transcription:", text)
+        print("Transcription:", text)
+        return
 
 
 
