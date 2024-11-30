@@ -219,7 +219,7 @@ def process_voice_commands():
             break
         open_web(text)
         print("Transcription:", text)
-        return
+  
 
 
 
