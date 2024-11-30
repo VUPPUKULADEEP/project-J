@@ -15,6 +15,7 @@ import requests
 import randfacts
 from datetime import datetime
 import pyautogui
+import mouseinfo,shutil
 
 r = sr.Recognizer()
 now= datetime.now()
@@ -115,6 +116,7 @@ def take_screenshot():
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"screenshot_{timestamp}.png"
     pyautogui.screenshot(filename)
+    shutil.move(filename, os.path.join('screenshots', filename))
     textspeech(f"Screenshot saved as {filename}")
     print(f"Screenshot saved as {filename}")
 
@@ -195,7 +197,7 @@ while True:
     text = record_audio()
     if 'exit' in text:
         break
-    if not text is 'speak again':
+    if text is not 'speak again':
         open_web(text)
     print("Transcription:", text)
 
