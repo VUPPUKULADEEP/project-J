@@ -3,3 +3,4 @@ audio
 *.wav*
 test.py
 myenv
+*.mp3*

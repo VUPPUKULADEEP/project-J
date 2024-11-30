@@ -1,12 +1,15 @@
 import os
 import re
 import subprocess
+from gtts import gTTS
 import webbrowser as web
 import pyjokes 
 import speech_recognition as sr
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 import time
 import requests
 import randfacts
@@ -17,15 +20,19 @@ now= datetime.now()
 para = ''
 
 
-def textspeech(x,language_code="en-US"):
-    # Directly use pico2wave through subprocess
-    temp_wav = "audio/temp_speech.wav"  # Temporary file to store speech
-    command = f'pico2wave -w {temp_wav} "{x}"'  # Generate speech with pico2wave
-    # Run pico2wave command to generate speech
-    subprocess.run(command, shell=True , check=True)
-    # Play the generated speech using 'aplay'
-    subprocess.run(f'aplay {temp_wav}', shell=True)
-
+# def textspeech(x,language_code="en-US"):
+#     # Directly use pico2wave through subprocess
+#     temp_wav = "audio/temp_speech.wav"  # Temporary file to store speech
+#     command = f'pico2wave -w {temp_wav} "{x}"'  # Generate speech with pico2wave
+#     # Run pico2wave command to generate speech
+#     subprocess.run(command, shell=True , check=True)
+#     # Play the generated speech using 'aplay'
+#     subprocess.run(f'aplay {temp_wav}', shell=True)
+def textspeech(text):
+# Create TTS object and save to file
+    tts = gTTS(text=text, lang='en-in', slow=False)
+    tts.save("output.wav")
+    subprocess.run(['mpv', '--speed=1.2', 'output.wav'])
 
 def wikipedia(text):
     global para
@@ -58,10 +65,19 @@ def youTube(text):
     driver = webdriver.Chrome()
     # Open YouTube, search for a video, and play the first result
     driver.get("https://www.youtube.com/results?search_query="+ input)
-    video = driver.find_element(By.ID,'title-wrapper')
-    video.click()
+    video = driver.find_elements(By.ID,'title-wrapper')
+    video[1].click()
+    try:
+        # Wait for the "Skip Ads" button to be clickable
+        skip_button = WebDriverWait(driver, 12).until(
+            EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Skip Ads')]"))
+        )
+        skip_button.click()  # Click the skip button
+        print("Ad skipped!")
+    except Exception as e:
+        print("No ad to skip or an error occurred:", e)
     time .sleep(120)
-
+    driver.quit()
 
 def random_facts():
     return randfacts.get_fact()
@@ -79,7 +95,6 @@ def record_audio():
             print("You said: " + text)
             return text
         except sr.UnknownValueError:
-            print("Google Speech Recognition could not understand audio")
             return 'speak again'
         except sr.RequestError as e:
             print(f"Could not request results from Google Speech Recognition service; {e}")
@@ -92,8 +107,9 @@ def temperature(text):
         driver.get(f"https://www.google.com/search?q={text}+whether")
         # Find the search input box
         search_box = driver.find_element(By.ID,'wob_tm').text
-        textspeech(f'temperature at s{text} is '+ search_box+ 'degree celsius')
-        time.sleep(5)
+        driver.quit()
+        textspeech(f'temperature at {text} is '+ search_box+ 'degree celsius')
+        time.sleep(0.1)
     except Exception as e:
         print(Exception)
         textspeech('not found')
@@ -139,11 +155,13 @@ def open_web(text):
         textspeech('did you know that  '+  x)
         return
     elif 'date' in lower_text:
+        now = datetime.now()
         formatted_date = now.strftime('%B %d, %Y')
         print(formatted_date)
         textspeech(formatted_date)
         return
     elif 'time' in lower_text:
+        now = datetime.now() 
         tim =now.strftime('%I:%M%p')
         print(tim)
         textspeech(tim)
@@ -178,14 +196,13 @@ def news():
 #     textspeech(f'At Srikakulam,  wind speed is  {json_data['current']['wind_mph']} meters per hour, temperature is {json_data['current']['temp_c']}, humidity is {json_data['current']['humidity']} and present condition {json_data['current']['condition']['text']}')
 
 
-textspeech('hello sir iam your voice assistant')
-
+textspeech('hello sir i am your voice assistant')
+ 
 
 while True:
     text = record_audio()
     if 'exit' in text:
         break
-    textspeech(text)
     if not text is 'speak again':
         open_web(text)
     print("Transcription:", text)
