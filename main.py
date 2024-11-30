@@ -16,6 +16,7 @@ import randfacts
 from datetime import datetime
 import pyautogui
 import mouseinfo,shutil
+import keyboard
 
 r = sr.Recognizer()
 now= datetime.now()
@@ -51,6 +52,17 @@ def wikipedia(text):
     finally:
         # Close the browser
         driver.quit()
+
+def Telegram():
+    textspeech('Opening Telegram...')
+    try:
+        # Open Telegram Desktop in the background
+        subprocess.Popen('telegram-desktop', shell=True)
+        textspeech('Telegram is now open.')
+    except Exception as e:
+        textspeech('Failed to open Telegram.')
+        print(f"Error opening Telegram: {e}")
+
 
 
 def youTube(text):
@@ -172,6 +184,12 @@ def open_web(text):
         return
     elif "take" in lower_text and "picture" in lower_text:
         take_screenshot()
+    elif 'close telegram' in lower_text:
+        textspeech('Closing Telegram...')
+         # Simulate pressing Alt + F4
+        keyboard.press_and_release('alt+f4')
+    elif 'telegram' in lower_text:
+        Telegram()
     else:
         return
  
