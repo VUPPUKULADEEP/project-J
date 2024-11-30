@@ -1,7 +1,6 @@
 venv
 audio
 *.wav*
-test.py
 myenv
 *.mp3*
 *.png*
