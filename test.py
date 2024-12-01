@@ -87,7 +87,15 @@ def Telegram():
 
 def youTube(text):
     kit.playonyt(text)
+    pyautogui.press('k')
 
+def record_audio():
+    log_message('listening.......')
+    with sr.Microphone() as source:
+        recognizer.adjust_for_ambient_noise(source,1.2)
+        audio = recognizer.listen(source, timeout=5, phrase_time_limit=25)
+        text = recognizer.recognize_google(audio).lower()
+    return text
 
 
 def process_voice_commands():
@@ -95,20 +103,16 @@ def process_voice_commands():
     global assistant_active
     log_message("Listening for commands...")
     while assistant_active:
-        with sr.Microphone() as source:
-            try:
-                log_message('listening.......')
-                recognizer.adjust_for_ambient_noise(source,1.2)
-                audio = recognizer.listen(source, timeout=5, phrase_time_limit=25)
-                text = recognizer.recognize_google(audio).lower()
-                log_message(f"You said: {text}")
-                process_command(text)
-            except sr.UnknownValueError:
-                log_message("Could not understand the audio.")
-            except sr.WaitTimeoutError:
-                log_message("Listening timed out.")
-            except Exception as e:
-                log_message(f"Error: {e}")
+        try:
+            text = record_audio()
+            log_message(f"You said: {text}")
+            process_command(text)
+        except sr.UnknownValueError:
+            log_message("Could not understand the audio.")
+        except sr.WaitTimeoutError:
+            log_message("Listening timed out.")
+        except Exception as e:
+            log_message(f"Error: {e}")
 
 def find_my_ip():
     ip_address = requests.get('https://api64.ipify.org?format=json').json()
@@ -141,7 +145,6 @@ def process_command(text):
         return
     elif "search" in text:
         text = text.replace('search', '')
-        # web.open_new_tab(f'https://www.google.com/search?query={text}')
         kit.search(text)
         time.sleep(10)
         os.system('pkill chrome')
@@ -189,6 +192,10 @@ def process_command(text):
         print(ip)
         textspeech(ip)
         log_message(ip)
+    elif 'terminal' in text and 'open' in text:
+        pyautogui.hotkey('ctrl','alt','t')
+    elif 'close terminal' in text:
+        pyautogui.hotkey('ctrl','shift','q') 
     else:
         log_message("Command not recognized.")
 
