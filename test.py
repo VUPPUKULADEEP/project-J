@@ -1,4 +1,5 @@
 import os
+import psutil
 import shutil
 import pyautogui
 from tkinter import *
@@ -17,6 +18,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 import requests,re
+import pywhatkit as kit
+import wikipedia
 
 para=''
 tele = False
@@ -46,31 +49,12 @@ def log_message(message):
     log_area.insert(END, message + "\n")
     log_area.see(END)
 
-def wikipedia(text):
-    global para
+def wiki(text):
     input = text.replace("browse", "").replace("about", "").strip()
-    # Initialize the WebDriver (Chrome in this case)
-    driver = webdriver.Chrome()
-    try:
-        # Open Wikipedia
-        driver.get("https://www.wikipedia.org")
-        # Find the search input box
-        search_box = driver.find_element(By.ID,'searchInput')
-        search_button=driver.find_element(By.TAG_NAME,'button')
-        search_box.send_keys(input)
-        search_button.click()
-        para = driver.find_element(By.XPATH,'//*[@id="mw-content-text"]/div[1]/p[2]').text 
-        cleaned_text=re.sub(r'[^a-zA-Z0-9\s]', '', para)
-        cleaned_text = cleaned_text.replace('Hindi','').replace('pronunciation','').strip()
-        textspeech(cleaned_text)
-        time.sleep(5)
-        print(cleaned_text)
-    except Exception as e:
-        print(Exception)
-        textspeech('not found')
-    finally:
-        # Close the browser
-        driver.quit()
+    result = wikipedia.summary(input, sentences=2)
+    cleaned_text = result.replace('Hindi','').replace('pronunciation','').strip()
+    log_message(cleaned_text)
+    textspeech(cleaned_text)
 
 def temperature(text):
     driver = webdriver.Chrome()
@@ -102,23 +86,7 @@ def Telegram():
 
 
 def youTube(text):
-    input = text.replace("play", "").replace("youtube", "").strip()
-    driver = webdriver.Chrome()
-    # Open YouTube, search for a video, and play the first result
-    driver.get("https://www.youtube.com/results?search_query="+ input)
-    video = driver.find_elements(By.ID,'title-wrapper')
-    video[1].click()
-    try:
-        # Wait for the "Skip Ads" button to be clickable
-        skip_button = WebDriverWait(driver, 12).until(
-            EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Skip Ads')]"))
-        )
-        skip_button.click()  # Click the skip button
-        print("Ad skipped!")
-    except Exception as e:
-        print("No ad to skip or an error occurred:", e)
-    time .sleep(120)
-    driver.quit()
+    kit.playonyt(text)
 
 
 
@@ -131,7 +99,7 @@ def process_voice_commands():
             try:
                 log_message('listening.......')
                 recognizer.adjust_for_ambient_noise(source,1.2)
-                audio = recognizer.listen(source, timeout=3, phrase_time_limit=14)
+                audio = recognizer.listen(source, timeout=5, phrase_time_limit=25)
                 text = recognizer.recognize_google(audio).lower()
                 log_message(f"You said: {text}")
                 process_command(text)
@@ -141,6 +109,10 @@ def process_voice_commands():
                 log_message("Listening timed out.")
             except Exception as e:
                 log_message(f"Error: {e}")
+
+def find_my_ip():
+    ip_address = requests.get('https://api64.ipify.org?format=json').json()
+    return ip_address["ip"]
 
 
 def news():
@@ -159,7 +131,7 @@ def process_command(text):
         stop_listening()
         app.quit()
     elif "browse" in text:
-        wikipedia(text)  
+        wiki(text)  
         return
     elif "google" in text:
         textspeech('opening google')
@@ -204,13 +176,18 @@ def process_command(text):
         take_screenshot()
     elif 'close telegram' in text and tele:
         textspeech('Closing Telegram...')
-        pyautogui.hotkey('alt', 'f4')
+        pyautogui.hotkey('alt','f4')
         tele = False
         return
     elif 'telegram' in text:
         tele = True
         Telegram()
         return
+    elif 'ip' in text:
+        ip = find_my_ip()
+        print(ip)
+        textspeech(ip)
+        log_message(ip)
     else:
         log_message("Command not recognized.")
 
@@ -228,7 +205,7 @@ def take_screenshot():
 
 # GUI
 app = Tk()
-app.title("Voice Assistant")
+app.title("Project -J ")
 app.geometry("500x600")
 
 # Header
