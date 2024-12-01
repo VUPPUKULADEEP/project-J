@@ -141,7 +141,8 @@ def process_command(text):
         return
     elif "search" in text:
         text = text.replace('search', '')
-        web.open_new_tab(f'https://www.google.com/search?query={text}')
+        # web.open_new_tab(f'https://www.google.com/search?query={text}')
+        kit.search(text)
         time.sleep(10)
         os.system('pkill chrome')
         return
