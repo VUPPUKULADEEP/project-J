@@ -25,7 +25,7 @@ import smtplib
 
 
 EMAIL = "vuppukuladeep@gmail.com"
-PASSWORD = "ovbumuyiijnptvhg"
+PASSWORD = "ovbu muyi ijnp tvhg"
 
 para=''
 tele = False
@@ -95,11 +95,11 @@ def youTube(text):
     kit.playonyt(text)
     pyautogui.press('k')
 
-def record_audio():
+def record_audio(time,phrase):
     log_message('listening.......')
     with sr.Microphone() as source:
         recognizer.adjust_for_ambient_noise(source,1.2)
-        audio = recognizer.listen(source, timeout=5, phrase_time_limit=25)
+        audio = recognizer.listen(source, timeout=time, phrase_time_limit=phrase)
         text = recognizer.recognize_google(audio).lower()
     return text
 
@@ -110,7 +110,7 @@ def process_voice_commands():
     log_message("Listening for commands...")
     while assistant_active:
         try:
-            text = record_audio()
+            text = record_audio(5,25)
             log_message(f"You said: {text}")
             process_command(text)
         except sr.UnknownValueError:
@@ -124,19 +124,58 @@ def find_my_ip():
     ip_address = requests.get('https://api64.ipify.org?format=json').json()
     return ip_address["ip"]
 
-import smtplib
-from email.message import EmailMessage
 
-def send_email():
-    email = EMAIL
-    reciever = 'hemanthkottakota07@gmail.com'
-    subject = 'sample'
-    message = 'asdfdsadf'
-    text = f'subject : {subject}'
-    server = smtplib.SMTP('smtp.gmail.com',587)
-    server.starttls()
-    server.login(EMAIL,PASSWORD)
-    print('email send')
+
+def get_subject_and_message():
+    """Fetch subject and message via speech."""
+    try:
+        # Get Subject
+        textspeech("Please say the subject of your email.")
+        log_message("Listening for the subject...")
+        subject = record_audio(5, 10)
+        log_message(f"Subject received: {subject}")
+        # Get Message
+        textspeech("Now, please say the message.")
+        log_message("Listening for the message...")
+        message = record_audio(10, 30)
+        log_message(f"Message received: {message}")
+        return subject, message
+    except Exception as e:
+        log_message(f"Error capturing subject and message: {e}")
+        textspeech("An error occurred while capturing the subject and message.")
+        return None, None
+
+def send_email(event=None):
+    try:
+        # Fetch input for receiver email
+        receiver = receiver_entry.get().strip()
+
+        if not receiver:
+            textspeech("Please provide a recipient email address.")
+            return
+
+        # Fetch subject and message via voice
+        subject, message = get_subject_and_message()
+
+        if not subject or not message:
+            log_message("Subject or message not provided. Email sending cancelled.")
+            textspeech("Subject or message not provided. Email sending cancelled.")
+            return
+
+        # Compose and send the email
+        text = f"Subject: {subject}\n\n{message}"
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(EMAIL, PASSWORD)
+        server.sendmail(EMAIL, receiver, text)
+        server.quit()
+
+        log_message(f"Email sent to {receiver}.")
+        textspeech("Email has been sent successfully.")
+    except Exception as e:
+        log_message(f"Failed to send email: {e}")
+        textspeech("Failed to send the email. Please try again.")
+    toggle_email_inputs(visible=False)
 
 
 
@@ -147,6 +186,15 @@ def news():
         data = f'Number{i} {json_data['articles'][i]['title']}'
         print({data})
         textspeech(data)
+
+def toggle_email_inputs(visible):
+    """Show or Hide Email Input Fields"""
+    if visible:
+        receiver_entry.delete(0, END)
+        email_frame.pack(pady=10, fill=BOTH, expand=True)
+        textspeech("Please enter the recipient email")
+    else:
+        email_frame.pack_forget()
 
 
 def process_command(text):
@@ -218,7 +266,10 @@ def process_command(text):
     elif 'close terminal' in text:
         pyautogui.hotkey('ctrl','shift','q') 
     elif 'send email' in text:
+        toggle_email_inputs(visible=True)
         send_email()
+    elif 'cancel email' in text:
+        toggle_email_inputs(visible=False)
     else:
         log_message("Command not recognized.")
 
@@ -259,6 +310,19 @@ log_label.pack(pady=5)
 
 log_area = Text(app, wrap=WORD, font=("Arial", 12), height=20)
 log_area.pack(padx=10, pady=5, fill=BOTH, expand=True)
+
+# Email Section
+email_frame = LabelFrame(app, text="Send Email", font=("Arial", 14), padx=10, pady=10)
+
+# Recipient Email
+receiver_label = Label(email_frame, text="Recipient Email:", font=("Arial", 12))
+receiver_label.grid(row=0, column=0, sticky=W, padx=5, pady=5)
+receiver_entry = Entry(email_frame, font=("Arial", 12), width=30)
+receiver_entry.grid(row=0, column=1, padx=5, pady=5)
+
+app.bind('<Return>', lambda event: send_email())
+toggle_email_inputs(visible=False)
+
 
 # Start GUI
 textspeech("Hello, I am your voice assistant. Press Start to begin.")
