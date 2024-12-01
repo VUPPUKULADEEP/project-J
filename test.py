@@ -20,6 +20,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 import requests,re
 import pywhatkit as kit
 import wikipedia
+from email.message import EmailMessage
+import smtplib
+
+
+EMAIL = "vuppukuladeep@gmail.com"
+PASSWORD = "ovbumuyiijnptvhg"
 
 para=''
 tele = False
@@ -118,6 +124,21 @@ def find_my_ip():
     ip_address = requests.get('https://api64.ipify.org?format=json').json()
     return ip_address["ip"]
 
+import smtplib
+from email.message import EmailMessage
+
+def send_email():
+    email = EMAIL
+    reciever = 'hemanthkottakota07@gmail.com'
+    subject = 'sample'
+    message = 'asdfdsadf'
+    text = f'subject : {subject}'
+    server = smtplib.SMTP('smtp.gmail.com',587)
+    server.starttls()
+    server.login(EMAIL,PASSWORD)
+    print('email send')
+
+
 
 def news():
     apiadress = "https://newsapi.org/v2/everything?q=keyword&apiKey=c2854530a2a44f21a107acddf62832e9"
@@ -196,6 +217,8 @@ def process_command(text):
         pyautogui.hotkey('ctrl','alt','t')
     elif 'close terminal' in text:
         pyautogui.hotkey('ctrl','shift','q') 
+    elif 'send email' in text:
+        send_email()
     else:
         log_message("Command not recognized.")
 
