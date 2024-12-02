@@ -2,7 +2,6 @@ venv
 audio
 *.wav*
 myenv
-*.mp3*
 *.png*
 *screenshots*
 __pycache__
