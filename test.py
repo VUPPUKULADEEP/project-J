@@ -32,6 +32,7 @@ tele = False
 # Globals
 recognizer = sr.Recognizer()
 assistant_active = True
+recording = True
 
 def textspeech(text):
     tts = gTTS(text=text, lang='en-in', slow=False)
@@ -48,18 +49,14 @@ def stop_listening():
     """Stop Listening for Commands"""
     global assistant_active
     assistant_active = False
-    log_message("Voice Assistant Stopped.")
+    print("Voice Assistant Stopped.")
 
-def log_message(message):
-    """Log Messages in the GUI"""
-    log_area.insert(END, message + "\n")
-    log_area.see(END)
 
 def wiki(text):
     input = text.replace("browse", "").replace("about", "").strip()
     result = wikipedia.summary(input, sentences=2)
     cleaned_text = result.replace('Hindi','').replace('pronunciation','').strip()
-    log_message(cleaned_text)
+    print(cleaned_text)
     textspeech(cleaned_text)
 
 def temperature(text):
@@ -96,9 +93,10 @@ def youTube(text):
     pyautogui.press('k')
 
 def record_audio(time,phrase):
-    log_message('listening.......')
+    
     with sr.Microphone() as source:
         recognizer.adjust_for_ambient_noise(source,1.2)
+        print('listening.......')
         audio = recognizer.listen(source, timeout=time, phrase_time_limit=phrase)
         text = recognizer.recognize_google(audio).lower()
     return text
@@ -107,18 +105,18 @@ def record_audio(time,phrase):
 def process_voice_commands():
     """Main Voice Processing Loop"""
     global assistant_active
-    log_message("Listening for commands...")
+    print("Listening for commands...")
     while assistant_active:
         try:
-            text = record_audio(5,25)
-            log_message(f"You said: {text}")
-            process_command(text)
+                text = record_audio(5,25)
+                print(f"You said: {text}")
+                process_command(text)
         except sr.UnknownValueError:
-            log_message("Could not understand the audio.")
+                print("Could not understand the audio.")
         except sr.WaitTimeoutError:
-            log_message("Listening timed out.")
+                print("Listening timed out.")
         except Exception as e:
-            log_message(f"Error: {e}")
+                print(f"Error: {e}")
 
 def find_my_ip():
     ip_address = requests.get('https://api64.ipify.org?format=json').json()
@@ -126,30 +124,109 @@ def find_my_ip():
 
 
 
+# def get_subject_and_message():
+#     """Fetch subject and message via speech."""
+#     try:
+#         # Get Subject
+#         textspeech("Please say the subject of your email.")
+#         print("Listening for the subject...")
+#         subject = record_audio(5, 10)
+#         print(f"Subject received: {subject}")
+#         # Get Message
+#         textspeech("Now, please say the message.")
+#         print("Listening for the message...")
+#         message = record_audio(10, 30)
+#         print(f"Message received: {message}")
+#         return subject, message
+#     except Exception as e:
+#         print(f"Error capturing subject and message: {e}")
+#         textspeech("An error occurred while capturing the subject and message.")
+#         return None, None
+
+
+def record_continuous_audio(max_silence_duration=3, max_total_duration=60):
+    """
+    Continuously record and process audio, allowing for pauses in speech.
+    
+    Parameters:
+        max_silence_duration (int): Maximum duration of silence (in seconds) before considering input complete.
+        max_total_duration (int): Maximum total listening duration (in seconds).
+        
+    Returns:
+        str: Combined recognized text from the audio.
+    """
+    with sr.Microphone() as source:
+        recognizer.adjust_for_ambient_noise(source, duration=1)
+        print("Listening continuously... Speak now.")
+        textspeech("I am listening. Speak now.")
+        
+        complete_text = ""
+        start_time = time.time()
+        
+        while True:
+            try:
+                # Listen for a chunk of speech
+                audio = recognizer.listen(source, timeout=max_silence_duration, phrase_time_limit=max_silence_duration)
+                
+                # Recognize the speech in the chunk
+                chunk_text = recognizer.recognize_google(audio)
+                print(f"Recognized chunk: {chunk_text}")
+                complete_text += f" {chunk_text}".strip()
+            
+            except sr.WaitTimeoutError:
+                # Silence detected; check if maximum silence duration is reached
+                if time.time() - start_time >= max_total_duration:
+                    print("Maximum listening duration reached.")
+                    break
+                else:
+                    print("Pause detected, waiting for further input...")
+                    textspeech("You paused, but I am still listening.")
+            
+            except sr.UnknownValueError:
+                print("Could not understand the audio. Waiting for more input...")
+            
+            except Exception as e:
+                print(f"Error during speech recognition: {e}")
+                break
+            
+            # Break the loop if total duration exceeds the maximum limit
+            if time.time() - start_time >= max_total_duration:
+                print("Reached maximum allowed duration for listening.")
+                break
+
+        print(f"Complete recognized text: {complete_text}")
+        textspeech("I have captured your speech.")
+        return complete_text
+
+
 def get_subject_and_message():
     """Fetch subject and message via speech."""
     try:
         # Get Subject
         textspeech("Please say the subject of your email.")
-        log_message("Listening for the subject...")
-        subject = record_audio(5, 10)
-        log_message(f"Subject received: {subject}")
+        print("Listening for the subject...")
+        subject = record_continuous_audio(max_silence_duration=3, max_total_duration=30)  # Adjust durations as needed
+        print(f"Subject received: {subject}")
+        
         # Get Message
         textspeech("Now, please say the message.")
-        log_message("Listening for the message...")
-        message = record_audio(10, 30)
-        log_message(f"Message received: {message}")
+        print("Listening for the message...")
+        message = record_continuous_audio(max_silence_duration=3, max_total_duration=60)  # Adjust durations as needed
+        print(f"Message received: {message}")
+        
         return subject, message
     except Exception as e:
-        log_message(f"Error capturing subject and message: {e}")
+        print(f"Error capturing subject and message: {e}")
         textspeech("An error occurred while capturing the subject and message.")
         return None, None
 
-def send_email(event=None):
+
+
+def send_email():
     try:
         # Fetch input for receiver email
-        receiver = receiver_entry.get().strip()
-
+        receiver = input('enter reciepient email')+'@gmail.com'
+        print(receiver)
         if not receiver:
             textspeech("Please provide a recipient email address.")
             return
@@ -158,7 +235,7 @@ def send_email(event=None):
         subject, message = get_subject_and_message()
 
         if not subject or not message:
-            log_message("Subject or message not provided. Email sending cancelled.")
+            print("Subject or message not provided. Email sending cancelled.")
             textspeech("Subject or message not provided. Email sending cancelled.")
             return
 
@@ -170,12 +247,11 @@ def send_email(event=None):
         server.sendmail(EMAIL, receiver, text)
         server.quit()
 
-        log_message(f"Email sent to {receiver}.")
+        print(f"Email sent to {receiver}.")
         textspeech("Email has been sent successfully.")
     except Exception as e:
-        log_message(f"Failed to send email: {e}")
+        print(f"Failed to send email: {e}")
         textspeech("Failed to send the email. Please try again.")
-    toggle_email_inputs(visible=False)
 
 
 
@@ -187,14 +263,6 @@ def news():
         print({data})
         textspeech(data)
 
-def toggle_email_inputs(visible):
-    """Show or Hide Email Input Fields"""
-    if visible:
-        receiver_entry.delete(0, END)
-        email_frame.pack(pady=10, fill=BOTH, expand=True)
-        textspeech("Please enter the recipient email")
-    else:
-        email_frame.pack_forget()
 
 
 def process_command(text):
@@ -202,7 +270,6 @@ def process_command(text):
     """Process Commands"""
     if "exit" in text or "quit" in text:
         stop_listening()
-        app.quit()
     elif "browse" in text:
         wiki(text)  
         return
@@ -221,20 +288,20 @@ def process_command(text):
     elif "date" in text:
         now = datetime.now()
         formatted_date = now.strftime('%B %d, %Y')
-        log_message(f"Date: {formatted_date}")
+        print(f"Date: {formatted_date}")
         textspeech(f"Today's date is {formatted_date}.")
     elif "time" in text:
         now = datetime.now()
         current_time = now.strftime('%I:%M %p')
-        log_message(f"Time: {current_time}")
+        print(f"Time: {current_time}")
         textspeech(f"The current time is {current_time}.")
     elif "joke" in text:
         joke = pyjokes.get_joke()
-        log_message(f"Joke: {joke}")
+        print(f"Joke: {joke}")
         textspeech(joke)
     elif "fact" in text:
         fact = randfacts.get_fact()
-        log_message(f"Fact: {fact}")
+        print(f"Fact: {fact}")
         textspeech(f"Did you know? {fact}")
     elif "play" in text:
          youTube(text)
@@ -260,18 +327,17 @@ def process_command(text):
         ip = find_my_ip()
         print(ip)
         textspeech(ip)
-        log_message(ip)
+        print(ip)
     elif 'terminal' in text and 'open' in text:
         pyautogui.hotkey('ctrl','alt','t')
     elif 'close terminal' in text:
         pyautogui.hotkey('ctrl','shift','q') 
     elif 'send email' in text:
-        toggle_email_inputs(visible=True)
         send_email()
     elif 'cancel email' in text:
-        toggle_email_inputs(visible=False)
+        print('cancel')
     else:
-        log_message("Command not recognized.")
+        print("Command not recognized.")
 
 def take_screenshot():
     """Capture and Save Screenshot"""
@@ -280,50 +346,10 @@ def take_screenshot():
         filename = f"screenshot_{timestamp}.png"
         pyautogui.screenshot(filename)
         shutil.move(filename, os.path.join('screenshots', filename))
-        log_message(f"Screenshot saved: {filename}")
+        print(f"Screenshot saved: {filename}")
     except Exception as e:
-        log_message(f"Error taking screenshot: {e}")
+        print(f"Error taking screenshot: {e}")
         textspeech("Failed to take a screenshot.")
 
-# GUI
-app = Tk()
-app.title("Project -J ")
-app.geometry("500x600")
+start_listening()
 
-# Header
-header_label = Label(app, text="Voice Assistant", font=("Arial", 24, "bold"))
-header_label.pack(pady=10)
-
-# Buttons
-button_frame = Frame(app)
-button_frame.pack(pady=10)
-
-start_button = Button(button_frame, text="Start Listening", font=("Arial", 12), command=start_listening, bg="green", fg="white")
-start_button.grid(row=0, column=0, padx=10)
-
-stop_button = Button(button_frame, text="Stop Listening", font=("Arial", 12), command=stop_listening, bg="red", fg="white")
-stop_button.grid(row=0, column=1, padx=10)
-
-# Log Area
-log_label = Label(app, text="Logs:", font=("Arial", 14))
-log_label.pack(pady=5)
-
-log_area = Text(app, wrap=WORD, font=("Arial", 12), height=20)
-log_area.pack(padx=10, pady=5, fill=BOTH, expand=True)
-
-# Email Section
-email_frame = LabelFrame(app, text="Send Email", font=("Arial", 14), padx=10, pady=10)
-
-# Recipient Email
-receiver_label = Label(email_frame, text="Recipient Email:", font=("Arial", 12))
-receiver_label.grid(row=0, column=0, sticky=W, padx=5, pady=5)
-receiver_entry = Entry(email_frame, font=("Arial", 12), width=30)
-receiver_entry.grid(row=0, column=1, padx=5, pady=5)
-
-app.bind('<Return>', lambda event: send_email())
-toggle_email_inputs(visible=False)
-
-
-# Start GUI
-textspeech("Hello, I am your voice assistant. Press Start to begin.")
-app.mainloop()
