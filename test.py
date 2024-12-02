@@ -253,8 +253,37 @@ def news():
 def process_command(text):
     global tele
     """Process Commands"""
-    if "exit" in text or "quit" in text:
+    lower_text = text.lower()
+    print(f"Transcription received: '{text}'")
+
+    greetings = ["hi", "hello", "hey", "howdy", "hola"]
+    farewells = ["bye", "goodbye", "see you", "take care"]
+    
+    # Time-specific greetings
+    current_hour = datetime.now().hour
+    if 5 <= current_hour < 12:
+        time_greeting = "Good morning!"
+    elif 12 <= current_hour < 18:
+        time_greeting = "Good afternoon!"
+    else:
+        time_greeting = "Good evening!"
+
+
+    if "exit" in text or "quit" in text or "bye" in text:
+        textspeech("Goodbye! Have a great day!")
         stop_listening()
+    elif any(greet in lower_text for greet in greetings):
+        textspeech(f"{time_greeting} How can I assist you today?")
+
+    elif any(farewell in lower_text for farewell in farewells):
+        textspeech("Goodbye! Have a great day!")
+
+    elif "how are you" in lower_text:
+        textspeech("I'm just a bot, but I'm doing great! How about you?")
+
+    elif "name" in lower_text:
+        textspeech("My name is J.A.R.V.I.S, your friendly assistant.")
+    
     elif "browse" in text:
         wiki(text)  
         return
