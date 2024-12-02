@@ -101,6 +101,7 @@ def record_audio(time,phrase):
         print('listening.......')
         eel.DisplayMessage('listening.........')
         audio = recognizer.listen(source, timeout=time, phrase_time_limit=phrase)
+        eel.DisplayMessage('recognizing.......')
         text = recognizer.recognize_google(audio).lower()
     return text
 
@@ -126,25 +127,6 @@ def find_my_ip():
     return ip_address["ip"]
 
 
-
-# def get_subject_and_message():
-#     """Fetch subject and message via speech."""
-#     try:
-#         # Get Subject
-#         textspeech("Please say the subject of your email.")
-#         print("Listening for the subject...")
-#         subject = record_audio(5, 10)
-#         print(f"Subject received: {subject}")
-#         # Get Message
-#         textspeech("Now, please say the message.")
-#         print("Listening for the message...")
-#         message = record_audio(10, 30)
-#         print(f"Message received: {message}")
-#         return subject, message
-#     except Exception as e:
-#         print(f"Error capturing subject and message: {e}")
-#         textspeech("An error occurred while capturing the subject and message.")
-#         return None, None
 
 
 def record_continuous_audio(max_silence_duration=3, max_total_duration=60):
