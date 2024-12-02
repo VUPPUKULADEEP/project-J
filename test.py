@@ -22,6 +22,7 @@ import pywhatkit as kit
 import wikipedia
 from email.message import EmailMessage
 import smtplib
+import eel
 
 
 EMAIL = "vuppukuladeep@gmail.com"
@@ -39,6 +40,7 @@ def textspeech(text):
     tts.save("output.wav")
     subprocess.run(['mpv', '--speed=1.2', 'output.wav'])
 
+@eel.expose
 def start_listening():
     """Start Listening for Commands"""
     global assistant_active
@@ -97,6 +99,7 @@ def record_audio(time,phrase):
     with sr.Microphone() as source:
         recognizer.adjust_for_ambient_noise(source,1.2)
         print('listening.......')
+        eel.DisplayMessage('listening.........')
         audio = recognizer.listen(source, timeout=time, phrase_time_limit=phrase)
         text = recognizer.recognize_google(audio).lower()
     return text
@@ -351,5 +354,4 @@ def take_screenshot():
         print(f"Error taking screenshot: {e}")
         textspeech("Failed to take a screenshot.")
 
-start_listening()
 

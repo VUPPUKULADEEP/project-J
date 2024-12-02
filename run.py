@@ -1,6 +1,7 @@
 import eel
 
 from engine.features import *
+from test import *
 
 # Initialize Eel
 eel.init('frontend')  # Ensure this points to the folder with your index.html
