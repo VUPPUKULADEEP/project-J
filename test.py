@@ -321,6 +321,8 @@ def process_command(text):
         send_email()
     elif 'cancel email' in text:
         print('cancel')
+    elif 'message' in text:
+        kit.sendwhatmsg('+919032340532','hi',17,38)
     else:
         print("Command not recognized.")
 
