@@ -47,6 +47,8 @@ def start_listening():
     assistant_active = True
     Thread(target=process_voice_commands).start()
 
+    
+@eel.expose
 def stop_listening():
     """Stop Listening for Commands"""
     global assistant_active

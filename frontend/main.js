@@ -49,6 +49,13 @@ $(document).ready(function () {
         eel.start_listening()
     });
 
+    $("#HomeBtn").click(function () { 
+        eel.playAssistantSound()
+        $("#Oval").attr("hidden", false);
+        $("#SiriWave").attr("hidden", true);
+        eel.stop_listening()
+    });
+
 
     function sendInputToPython() {
         const input = $("#inputdata").val().trim(); // Get user input and trim whitespace
