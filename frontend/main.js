@@ -96,6 +96,24 @@ $(document).ready(function () {
         });
     }
 
+    function sendNumber(){
+        const input = $("#inputdata").val().trim(); // Get user input and trim whitespace
+        if (input) { // Ensure input is not empty
+            console.log("Sending input to Python:", input);
+            $("#inputdata").val('')
+            eel.send_number(input); // Call Python function
+        }
+    }
+
+    eel.expose(se)
+    function se(){
+        $("#inputdata").on("keydown", function (event) {
+            if (event.key === "Enter") { // Check if "Enter" key is pressed
+                sendNumber(); // Call the function to send input
+            }
+        });
+    }
+
     eel.expose(exit)
     function exit(){
         eel.playAssistantSound()

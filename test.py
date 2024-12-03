@@ -7,7 +7,7 @@ from tkinter import messagebox
 from threading import Thread
 import subprocess
 import speech_recognition as sr
-from datetime import datetime
+from datetime import datetime,timedelta
 from gtts import gTTS
 import pyjokes,randfacts
 import time
@@ -253,7 +253,32 @@ def sending(receiver):
         process_voice_commands()
 
 def send_message():
-    kit.sendwhatmsg('+919032340532','hi',17,38)
+    global assistant_active
+    assistant_active = False
+    textspeech('enter your Number')
+    eel.se()()
+    # kit.sendwhatmsg('+919032340532','hi',17,38)
+
+@eel.expose
+def send_number(input):
+    global assistant_active
+    number = '+91'+ input
+    textspeech('now say your message')
+    eel.DisplayMessage('say your message')
+    message = record_continuous_audio(max_silence_duration=4, max_total_duration=15)
+    now = datetime.now()  # Get current time
+    scheduled_time = now + timedelta(seconds=80)  # Schedule 2 minutes from now
+    hours = scheduled_time.hour
+    minutes = scheduled_time.minute
+    try:
+        # Schedule message with sufficient buffer time
+        kit.sendwhatmsg(number, message, hours, minutes)
+        print(f"Message scheduled for {hours}:{minutes}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    assistant_active = True
+    process_voice_commands()
+    
 
 def calculator():
     global assistant_active
