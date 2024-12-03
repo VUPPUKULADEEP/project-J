@@ -59,6 +59,7 @@ def stop_listening():
 
 def wiki(text):
     input = text.replace("browse", "").replace("about", "").strip()
+    textspeech(f'browsing about {input}')
     result = wikipedia.summary(input, sentences=2)
     cleaned_text = result.replace('Hindi','').replace('pronunciation','').strip()
     print(cleaned_text)
@@ -67,6 +68,7 @@ def wiki(text):
 def temperature(text):
     driver = webdriver.Chrome()
     text = text.replace('temperature','').replace('whether','').replace('of','').replace('at','').strip()
+    textspeech(f'finding the temperature in {text}')
     try:
         # Open Wikipedia
         driver.get(f"https://www.google.com/search?q={text}+whether")
@@ -94,6 +96,8 @@ def Telegram():
 
 
 def youTube(text):
+    text = text.replace('play','').strip()
+    textspeech(f"playing {text} on youtube")
     kit.playonyt(text)
     pyautogui.press('k')
 
@@ -115,7 +119,7 @@ def process_voice_commands():
     print("Listening for commands...")
     while assistant_active:
         try:
-                text = record_audio(5,25)
+                text = record_audio(10,25)
                 print(f"You said: {text}")
                 process_command(text)
         except sr.UnknownValueError:
@@ -126,6 +130,7 @@ def process_voice_commands():
                 print(f"Error: {e}")
 
 def find_my_ip():
+    textspeech("finding your ip address")
     ip_address = requests.get('https://api64.ipify.org?format=json').json()
     return ip_address["ip"]
 
@@ -398,11 +403,13 @@ def process_command(text):
     elif 'ip' in text:
         ip = find_my_ip()
         print(ip)
-        textspeech(ip)
+        textspeech(f'your ip address is {ip}')
         print(ip)
     elif 'terminal' in text and 'open' in text:
+        textspeech("opening terminal...")
         pyautogui.hotkey('ctrl','alt','t')
     elif 'close terminal' in text:
+        textspeech('closing terminal...')
         pyautogui.hotkey('ctrl','shift','q') 
     elif 'send email' in text:
         send_email()
@@ -414,6 +421,7 @@ def process_command(text):
         print("Command not recognized.")
 
 def take_screenshot():
+    textspeech('taking screen shot')
     """Capture and Save Screenshot"""
     try:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
