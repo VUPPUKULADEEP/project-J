@@ -73,5 +73,13 @@ $(document).ready(function () {
             sendInputToPython(); // Call the function to send input
         }
     });
-}
+    }
+
+    eel.expose(exit)
+    function exit(){
+        eel.playAssistantSound()
+        $("#Oval").attr("hidden", false);
+        $("#SiriWave").attr("hidden", true);
+    }
+
 });

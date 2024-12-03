@@ -54,6 +54,7 @@ def stop_listening():
     global assistant_active
     assistant_active = False
     print("Voice Assistant Stopped.")
+    eel.exit()()
 
 
 def wiki(text):
@@ -158,7 +159,7 @@ def record_continuous_audio(max_silence_duration=3, max_total_duration=60):
                 # Recognize the speech in the chunk
                 chunk_text = recognizer.recognize_google(audio)
                 print(f"Recognized chunk: {chunk_text}")
-                complete_text += f" {chunk_text}".strip()
+                complete_text += f" {chunk_text}"+' '
             
             except sr.WaitTimeoutError:
                 # Silence detected; check if maximum silence duration is reached
@@ -216,13 +217,15 @@ def get_subject_and_message():
 def send_email():
     global assistant_active
     assistant_active = False
-    eel.DisplayMessage('send')
-        # Fetch input for receiver email
+    eel.DisplayMessage('dont include @gmail.com')
+    # Fetch input for receiver email
+    textspeech('please enter your email')    
     eel.i()()
 
 
 @eel.expose
 def sending(receiver):
+    receiver +='@gmail.com'
     global assistant_active
     try:
         # Fetch subject and message via voice
