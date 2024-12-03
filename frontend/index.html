@@ -65,24 +65,26 @@
         </div>
 
     </section>
-    <section id="SiriWave" class="mb-4" hidden >
-
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="d-flex justify-content-center align-items-center" style="height: 100vh;">
-                        <div class="">
-                            <p class="text-start text-light mb-4 siri-message" style="font-size: 28px;">Hello, I am  J.A.R.V.I.S</p>
-                            <div id="siri-container"></div>
-                        </div>
-                        <input type="text" class="input-field" name="chatbox" id="inputdata"
-                        placeholder="type here ... ">
-                    </div>
-                </div>
+    <section id="SiriWave" class="vh-100 d-flex flex-column justify-content-between" hidden>
+        <div class="container d-flex justify-content-center align-items-center flex-grow-1">
+            <div class="text-center">
+                <p class="text-light siri-message mb-4" style="font-size: 28px;">Hello, I am J.A.R.V.I.S</p>
+                <div id="siri-container"></div>
             </div>
         </div>
-
+        <div class="text-center mb-4">
+            <div id="TextInput" class="d-flex justify-content-center align-items-center">
+                <input type="text" class="input-field me-2" name="chatbox" id="inputdata" placeholder="Type here ...">
+                <button id="SendBtn" class="glow-on-hover me-2" hidden>
+                    <i class="bi bi-send"></i>
+                </button>
+                <button id="MicBtn" class="glow-on-hover">
+                    <i class="bi bi-mic"></i>
+                </button>
+            </div>
+        </div>
     </section>
+    
       <!--Jquery  -->
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
 

@@ -191,7 +191,7 @@ def get_subject_and_message():
         textspeech("Please say the subject of your email.")
         print("Listening for the subject...")
         eel.DisplayMessage('now say the subject')
-        subject = record_continuous_audio(max_silence_duration=3, max_total_duration=30)  # Adjust durations as needed
+        subject = record_continuous_audio(max_silence_duration=3, max_total_duration=20)  # Adjust durations as needed
         print(f"Subject received: {subject}")
         eel.DisplayMessage(f"Subject received: {subject}")
         
@@ -199,7 +199,7 @@ def get_subject_and_message():
         textspeech("Now, please say the message.")
         print("Listening for the message...")
         eel.DisplayMessage('listening for message')
-        message = record_continuous_audio(max_silence_duration=3, max_total_duration=60)  # Adjust durations as needed
+        message = record_continuous_audio(max_silence_duration=4, max_total_duration=30)  # Adjust durations as needed
         print(f"Message received: {message}")
         eel.DisplayMessage(f"Message received: {message}")
         
@@ -238,9 +238,11 @@ def sending(receiver):
 
         print(f"Email sent to {receiver}.")
         textspeech("Email has been sent successfully.")
-        process_command()
     except Exception as e:
         print(f"Failed to send email: {e}")
+    finally:
+        process_command()
+
 
 
 
