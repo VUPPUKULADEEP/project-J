@@ -48,4 +48,23 @@ $(document).ready(function () {
         $("#SiriWave").attr("hidden", false);
         eel.start_listening()
     });
+
+
+    function sendInputToPython() {
+        const input = $("#inputdata").val().trim(); // Get user input and trim whitespace
+        if (input) { // Ensure input is not empty
+            console.log("Sending input to Python:", input);
+            $("#inputdata").val('')
+            eel.sending(input); // Call Python function
+        }
+    }
+    eel.expose(i)
+    function i(){
+    // Add event listener for the "Enter" key
+    $("#inputdata").on("keydown", function (event) {
+        if (event.key === "Enter") { // Check if "Enter" key is pressed
+            sendInputToPython(); // Call the function to send input
+        }
+    });
+}
 });
