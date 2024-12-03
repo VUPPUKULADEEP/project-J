@@ -212,6 +212,8 @@ def get_subject_and_message():
 
 
 def send_email():
+    global assistant_active
+    assistant_active = False
     eel.DisplayMessage('send')
         # Fetch input for receiver email
     eel.i()()
@@ -219,6 +221,7 @@ def send_email():
 
 @eel.expose
 def sending(receiver):
+    global assistant_active
     try:
         # Fetch subject and message via voice
         subject, message = get_subject_and_message()
@@ -241,7 +244,8 @@ def sending(receiver):
     except Exception as e:
         print(f"Failed to send email: {e}")
     finally:
-        process_command()
+        assistant_active = True
+        process_voice_commands()
 
 
 
