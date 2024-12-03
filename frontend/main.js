@@ -75,6 +75,27 @@ $(document).ready(function () {
     });
     }
 
+
+    function sendCalculatorInput() {
+        const input = $("#inputdata").val().trim(); // Get user input and trim whitespace
+        if (input) { // Ensure input is not empty
+            console.log("Sending input to Python:", input);
+            $("#inputdata").val('')
+            eel.calc(input); // Call Python function
+        }
+    }
+
+
+    eel.expose(a)
+    function a(){
+        // Add event listener for the "Enter" key
+        $("#inputdata").on("keydown", function (event) {
+            if (event.key === "Enter") { // Check if "Enter" key is pressed
+                sendCalculatorInput(); // Call the function to send input
+            }
+        });
+    }
+
     eel.expose(exit)
     function exit(){
         eel.playAssistantSound()
@@ -82,4 +103,5 @@ $(document).ready(function () {
         $("#SiriWave").attr("hidden", true);
     }
 
-});
+}
+);

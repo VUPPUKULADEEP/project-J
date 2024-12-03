@@ -76,7 +76,7 @@ def temperature(text):
         textspeech(f'temperature at {text} is '+ search_box+ 'degree celsius')
         time.sleep(0.1)
     except Exception as e:
-        print(Exception)
+        print(Exception) 
         textspeech('not found')
     finally:
         # Close the browser
@@ -252,6 +252,24 @@ def sending(receiver):
         assistant_active = True
         process_voice_commands()
 
+def send_message():
+    kit.sendwhatmsg('+919032340532','hi',17,38)
+
+def calculator():
+    global assistant_active
+    assistant_active = False
+    eel.DisplayMessage('enter your calculation in text box')
+    textspeech('enter the calculation in the text box')
+    eel.a()()
+
+@eel.expose
+def calc(input):
+      global assistant_active
+      result = eval(input)
+      eel.DisplayMessage(result)
+      textspeech(f'the value of {input}  is {result}')
+      assistant_active = True
+      process_voice_commands()
 
 
 
@@ -363,10 +381,10 @@ def process_command(text):
         pyautogui.hotkey('ctrl','shift','q') 
     elif 'send email' in text:
         send_email()
-    elif 'cancel email' in text:
-        print('cancel')
+    elif 'calculate' in text:
+        calculator()
     elif 'message' in text:
-        kit.sendwhatmsg('+919032340532','hi',17,38)
+        send_message()
     else:
         print("Command not recognized.")
 

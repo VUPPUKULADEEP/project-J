@@ -5,3 +5,4 @@ myenv
 *.png*
 *screenshots*
 __pycache__
+*vosk*
