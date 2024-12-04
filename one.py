@@ -1,43 +1,29 @@
 import sounddevice as sd
-import queue
-import vosk
-import sys
-import json
+from scipy.io.wavfile import write
+import whisper
 
-def recognize_audio():
-    # Initialize Vosk model and recognizer
-    model_path = "/media/kuladeep/d/codes/project-J/vosk-model-en-us-0.22"  # Update this with your model path
-    if not model_path:
-        print("Please provide a valid Vosk model path.")
-        sys.exit(1)
 
-    model = vosk.Model(model_path)
-    recognizer = vosk.KaldiRecognizer(model, 16000)  # Sampling rate: 16000 Hz
+# installation command pip install openai-whisper
+# Parameters for recording
+sample_rate = 16000  # Sampling frequency
+duration = 10  # Duration of recording in seconds
+output_file = "recorded_audio.wav"  # Output file name
 
-    # Queue for audio data
-    audio_queue = queue.Queue()
+# Step 1: Record Audio
+print("Recording... Speak now!")
+audio_data = sd.rec(int(sample_rate * duration), samplerate=sample_rate, channels=1, dtype='int16')
+sd.wait()  # Wait until the recording is finished
+write(output_file, sample_rate, audio_data)  # Save as a WAV file
+print(f"Recording complete. Audio saved as {output_file}.")
 
-    # Callback for streaming audio data to the queue
-    def audio_callback(indata, frames, time, status):
-        if status:
-            print(status, file=sys.stderr)
-        audio_queue.put(bytes(indata))
+# Step 2: Load Whisper Model
+print("Loading Whisper model...")
+model = whisper.load_model("tiny", device="cpu")  # Use "cpu" explicitly for CPU processing
 
-    # Start the audio stream
-    with sd.RawInputStream(samplerate=16000, blocksize=8000, dtype="int16",
-                           channels=1, callback=audio_callback):
-        print("Listening... Speak into the microphone.")
-        while True:
-            data = audio_queue.get()
-            if recognizer.AcceptWaveform(data):
-                result = json.loads(recognizer.Result())
-                print(f"Recognized Text: {result['text']}")
-                return result['text']
-            else:
-                # Optionally process partial results
-                partial = json.loads(recognizer.PartialResult())
-                print(f"Partial: {partial['partial']}")
+# Step 3: Transcribe the Recorded Audio
+print("Transcribing audio...")
+result = model.transcribe(output_file,language='en')
 
-# Run the function
-recognized_text = recognize_audio()
-print(f"Final Transcription: {recognized_text}")
+# Step 4: Output the Transcription
+print("Transcription:")
+print(result["text"])
