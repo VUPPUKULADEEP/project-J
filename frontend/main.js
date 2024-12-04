@@ -69,7 +69,8 @@ $(document).ready(function () {
     function i(){
     // Add event listener for the "Enter" key
     $("#inputdata").on("keydown", function (event) {
-        if (event.key === "Enter") { // Check if "Enter" key is pressed
+        if (event.key === "Enter") {
+            $("#inputdata").off("keydown"); // Check if "Enter" key is pressed
             sendInputToPython(); // Call the function to send input
         }
     });
@@ -90,7 +91,8 @@ $(document).ready(function () {
     function a(){
         // Add event listener for the "Enter" key
         $("#inputdata").on("keydown", function (event) {
-            if (event.key === "Enter") { // Check if "Enter" key is pressed
+            if (event.key === "Enter") { 
+                $("#inputdata").off("keydown");// Check if "Enter" key is pressed
                 sendCalculatorInput(); // Call the function to send input
             }
         });
@@ -108,7 +110,8 @@ $(document).ready(function () {
     eel.expose(se)
     function se(){
         $("#inputdata").on("keydown", function (event) {
-            if (event.key === "Enter") { // Check if "Enter" key is pressed
+            if (event.key === "Enter") { 
+                $("#inputdata").off("keydown");// Check if "Enter" key is pressed
                 sendNumber(); // Call the function to send input
             }
         });

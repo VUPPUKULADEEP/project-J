@@ -74,15 +74,11 @@ def temperature(text):
         driver.get(f"https://www.google.com/search?q={text}+whether")
         # Find the search input box
         search_box = driver.find_element(By.ID,'wob_tm').text
-        driver.quit()
         textspeech(f'temperature at {text} is '+ search_box+ 'degree celsius')
         time.sleep(0.1)
     except Exception as e:
         print(Exception) 
         textspeech('not found')
-    finally:
-        # Close the browser
-        driver.quit()
 
 def Telegram():
     textspeech('Opening Telegram...')
@@ -354,13 +350,11 @@ def process_command(text):
         textspeech('opening google')
         web.open_new_tab('https://www.google.com/')
         time.sleep(10)
-        os.system('pkill chrome')
         return
     elif "search" in text:
         text = text.replace('search', '')
         kit.search(text)
         time.sleep(10)
-        os.system('pkill chrome')
         return
     elif "date" in text:
         now = datetime.now()
