@@ -117,6 +117,25 @@ $(document).ready(function () {
         });
     }
 
+    function sendQuestion(){
+        const input = $("#inputdata").val().trim(); // Get user input and trim whitespace
+        if (input) { // Ensure input is not empty
+            console.log("Sending input to Python:", input);
+            $("#inputdata").val('')
+            eel.question(input); // Call Python function
+        }
+    }
+
+    eel.expose(r)
+    function r(){
+        $("#inputdata").on("keydown", function (event) {
+            if (event.key === "Enter") { 
+                $("#inputdata").off("keydown");// Check if "Enter" key is pressed
+                sendQuestion(); // Call the function to send input
+            }
+        });
+    }
+
     eel.expose(exit)
     function exit(){
         eel.playAssistantSound()

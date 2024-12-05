@@ -7,7 +7,7 @@ from tkinter import messagebox
 from threading import Thread
 import subprocess
 import speech_recognition as sr
-from datetime import datetime,timedelta
+from datetime import datetime , timedelta
 from gtts import gTTS
 import pyjokes,randfacts
 import time
@@ -23,6 +23,8 @@ import wikipedia
 from email.message import EmailMessage
 import smtplib
 import eel
+import wolframalpha
+import httpx
 
 
 EMAIL = "vuppukuladeep@gmail.com"
@@ -74,11 +76,15 @@ def temperature(text):
         driver.get(f"https://www.google.com/search?q={text}+whether")
         # Find the search input box
         search_box = driver.find_element(By.ID,'wob_tm').text
+        driver.quit()
         textspeech(f'temperature at {text} is '+ search_box+ 'degree celsius')
         time.sleep(0.1)
     except Exception as e:
         print(Exception) 
         textspeech('not found')
+    finally:
+        # Close the browser
+        driver.quit()
 
 def Telegram():
     textspeech('Opening Telegram...')
@@ -115,7 +121,7 @@ def process_voice_commands():
     print("Listening for commands...")
     while assistant_active:
         try:
-                text = record_audio(10,25)
+                text = record_audio(60,25)
                 print(f"You said: {text}")
                 process_command(text)
         except sr.UnknownValueError:
@@ -206,7 +212,6 @@ def get_subject_and_message():
         message = record_continuous_audio(max_silence_duration=4, max_total_duration=30)  # Adjust durations as needed
         print(f"Message received: {message}")
         eel.DisplayMessage(f"Message received: {message}")
-        
         return subject, message
     except Exception as e:
         print(f"Error capturing subject and message: {e}")
@@ -254,12 +259,14 @@ def sending(receiver):
         process_voice_commands()
 
 def send_message():
+    # kit.sendwhatmsg('+919032340532','hi',17,38)
     global assistant_active
     assistant_active = False
     textspeech('enter your Number')
     eel.se()()
     # kit.sendwhatmsg('+919032340532','hi',17,38)
 
+    
 @eel.expose
 def send_number(input):
     global assistant_active
@@ -279,7 +286,6 @@ def send_number(input):
         print(f"An error occurred: {e}")
     assistant_active = True
     process_voice_commands()
-    
 
 def calculator():
     global assistant_active
@@ -308,11 +314,45 @@ def news():
         textspeech(data)
 
 
+def wolf():
+    global assistant_active
+    assistant_active = False
+    # wolf for ask anything to ai
+    # Your Wolfram Alpha App ID (replace with your actual ID)
+    eel.DisplayMessage('ask question')
+    textspeech('ask a short in input box')
+    eel.r()()
+
+@eel.expose
+def question(query):
+    global assistant_active
+    app_id = "TQGGKK-K2HR9EEVXW"
+    client = wolframalpha.Client(app_id)
+    # Create a custom timeout for the request
+    timeout = httpx.Timeout(10.0, connect=5.0)  # 10 seconds total, 5 seconds for connection
+
+    try:
+        # Query WolframAlpha with custom timeout settings
+        result = client.query(query, timeout=timeout)
+        # Extract the answer
+        answer = next(result.results).text
+        print("Answer:", answer)
+        textspeech(answer)
+    except httpx.ConnectTimeout as e:
+        print(f"Connection timed out: {e}")
+        textspeech(f"Connection timed out: {e}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        textspeech(f"An error occurred: {e}")
+    assistant_active = True
+    process_voice_commands()
+
 
 def process_command(text):
     global tele
     """Process Commands"""
     lower_text = text.lower()
+    eel.DisplayMessage(lower_text)
     print(f"Transcription received: '{text}'")
 
     greetings = ["hi", "hello", "hey", "howdy", "hola"]
@@ -350,11 +390,13 @@ def process_command(text):
         textspeech('opening google')
         web.open_new_tab('https://www.google.com/')
         time.sleep(10)
+        os.system('pkill chrome')
         return
     elif "search" in text:
         text = text.replace('search', '')
         kit.search(text)
         time.sleep(10)
+        os.system('pkill chrome')
         return
     elif "date" in text:
         now = datetime.now()
@@ -382,7 +424,6 @@ def process_command(text):
         return
     elif 'whether' in text or 'temperature' in text:
         temperature(text)
-        os.system('pkill chrome')
     elif "screenshot" in text:
         take_screenshot()
     elif 'close telegram' in text and tele:
@@ -399,18 +440,18 @@ def process_command(text):
         print(ip)
         textspeech(f'your ip address is {ip}')
         print(ip)
-    elif 'terminal' in text and 'open' in text:
+    elif 'term' in text:
         textspeech("opening terminal...")
-        pyautogui.hotkey('ctrl','alt','t')
-    elif 'close terminal' in text:
-        textspeech('closing terminal...')
-        pyautogui.hotkey('ctrl','shift','q') 
+        subprocess.run(['gnome-terminal'])
+        subprocess.run(['open', '-a', 'Terminal']) 
     elif 'send email' in text:
         send_email()
     elif 'calculate' in text:
         calculator()
     elif 'message' in text:
         send_message()
+    elif 'short' in text:
+        wolf()
     else:
         print("Command not recognized.")
 
