@@ -4,9 +4,9 @@
 
 > **Note:** This is currently works in linux ubuntu systems only 
 
-***make sure install python in your machine***
+***make sure install python, chrome in your machine***
 
-***activate venv for python and make sure install chrome***
+***activate venv for python ***
 
 >connect to internet while running this code.
 
