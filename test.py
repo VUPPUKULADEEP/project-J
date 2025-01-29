@@ -26,9 +26,11 @@ import eel
 import wolframalpha
 import httpx
 
-
-EMAIL = "vuppukuladeep@gmail.com"
-PASSWORD = "ovbu muyi ijnp tvhg"
+'''
+enter your mail and passkey below here it is help to send the email 
+'''
+EMAIL = "your mail"
+PASSWORD = "your mail passkey"
 
 para=''
 tele = False
